@@ -1,0 +1,20 @@
+{
+  "name": "mpharma-product-manager",
+  "version": "1.0.0",
+  "description": "React app that displays list of pharmaceutical products and their historical prices",
+  "main": "index.js",
+  "scripts": {
+    "export": "next build && next export",
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "author": "codycobs@outlook.com",
+  "license": "MIT",
+  "dependencies": {
+    "next": "^10.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "styled-components": "^5.2.3"
+  }
+}
