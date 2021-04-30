@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import colors from "../../utils/colors";
+import COLORS from "../../utils/colors";
 
 
 export default createGlobalStyle`
@@ -7,7 +7,7 @@ export default createGlobalStyle`
       box-sizing: border-box;
       transition: all 200ms;
 		font-family: 'Roboto', sans-serif;
-      color: ${colors.blackDefault};
+      color: ${COLORS.blackDefault};
       font-weight: normal;
       font-size: 15px;
       line-height: 1.6;
@@ -28,7 +28,7 @@ export default createGlobalStyle`
       line-height: 1.3;
       font-weight: 700;
       margin: 0;
-      color: ${colors.black};
+      color: ${COLORS.black};
    }
 
    h1 { font-size: 72px; }
@@ -50,12 +50,12 @@ export default createGlobalStyle`
    }
    
    p {
-      color: ${colors.blackDefault};
+      color: ${COLORS.blackDefault};
 		line-height: 2.0;
    }
    
    a {
-      color: ${colors.brand};
+      color: ${COLORS.brandOrange};
       font-size: 16px;
       text-decoration: none;
    }
@@ -68,7 +68,7 @@ export default createGlobalStyle`
    hr {
       border: none;
       height: 1px;
-      background: ${colors.border};
+      background: ${COLORS.border};
       margin-bottom: 30px;
       margin-top: 15px;
       
@@ -76,15 +76,15 @@ export default createGlobalStyle`
    }
    
    .bg {
-      &-gray { background: ${colors.gray}; }
-      &-black { background: ${colors.black}; }
-      &-white { background: ${colors.white}; }
+      &-gray { background: ${COLORS.gray}; }
+      &-black { background: ${COLORS.black}; }
+      &-white { background: ${COLORS.white}; }
    }
    
    .text {
-      &-black { color: ${colors.black}; }
-      &-white {color: ${colors.white}}
-      &-gray {color: ${colors.gray}; }
+      &-black { color: ${COLORS.black}; }
+      &-white {color: ${COLORS.white}}
+      &-gray {color: ${COLORS.gray}; }
       &-center { text-align: center; }
       &-capitalize { text-transform: capitalize; }
       &-uppercase { text-transform: uppercase; }
@@ -96,9 +96,36 @@ export default createGlobalStyle`
    }
    
    .form-error {
-      color: ${colors.error};
+      color: ${COLORS.error};
       font-size: 14px;
       font-weight: 600;
    }
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+
+		th, td { padding: 4px 0; }
+
+		thead {
+			border-bottom: 1px solid ${COLORS.shadowAlt};
+			text-align: left;
+			
+			th { font-weight: 700; }
+		}
+
+		tbody {
+			td {
+				color: ${COLORS.blackAccent};
+				font-size: 14px;
+			}
+		}
+	}
+
+	.empty-bucket {
+		text-align: center;
+		padding: 40px 0;
+		color: ${COLORS.blackAccent}
+	}
 `
 
