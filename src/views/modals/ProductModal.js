@@ -3,6 +3,14 @@ import BaseModal from "./BaseModal";
 import Spacer from "../globals/Spacer";
 import InputField from "../globals/InputField";
 import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { 
+	UPDATE_PRODUCTS, 
+	SET_MAX_PRICE_ID 
+} from "../../services/actions/products";
+import { 
+	CREATE_FEEDBACK,
+} from "../../services/actions/ui";
 
 
 const ProductModal = props => {
@@ -21,7 +29,92 @@ const ProductModal = props => {
 		if (props.mode == 'edit') {
 			const {name, prices} = props.product;
 			setProductName(name);
-			setProductPrice(prices[prices.length - 1].price);
+			setProductPrice(prices[0].price);
+		}
+	}
+
+
+	const handleSubmit = e => {
+		e.preventDefault();
+
+		if (
+			productName.trim() !== '' && 
+			productPrice.toString().trim() !== ''
+		) {
+			// save new product to state
+			if (props.mode !== 'edit') {
+				props.UPDATE_PRODUCTS([
+					{
+						id: props.PRODUCT_LIST.length + 1,
+						name: productName,
+						prices: [
+							{
+								id: props.MAX_PRICE_ID + 1,
+								price: parseFloat(productPrice),
+								date: Date.now()
+							}
+						]
+					},
+					...props.PRODUCT_LIST
+				]);
+
+				props.SET_MAX_PRICE_ID(props.MAX_PRICE_ID + 1);
+
+				props.CREATE_FEEDBACK({
+					type: 'success',
+					message: `${productName} saved`,
+					selfDestruct: true,
+				})
+			}
+
+			// save a product editing
+			else {
+				const productInQuestion = props.product;
+				const productInQuestionLastPrice = productInQuestion.prices[0].price
+				const indexOfProductInQuestion = props.PRODUCT_LIST.indexOf(productInQuestion);
+
+				const editedProduct = {
+					...productInQuestion,
+					name: productName
+				}
+
+				// update product price if the price was changed
+				if (productPrice != productInQuestion.prices[0].price) {
+					editedProduct.prices.unshift({
+						id: props.MAX_PRICE_ID + 1,
+						price: parseFloat(productPrice),
+						date: Date.now()
+					})
+
+					props.SET_MAX_PRICE_ID(props.MAX_PRICE_ID + 1)
+				}
+
+				// updating store
+				const products = props.PRODUCT_LIST;
+				products[indexOfProductInQuestion] = editedProduct;
+				props.UPDATE_PRODUCTS(products);
+
+				if (
+					productName !== productInQuestion.name ||
+					productPrice != productInQuestionLastPrice
+				) {
+					props.CREATE_FEEDBACK({
+						type: 'success',
+						message: `${productName} udpated`,
+						selfDestruct: true,
+					})
+				}
+			}
+
+			setProductNameError(null);
+			setProductPriceError(null);
+			props.dismiss();
+		}
+		else {
+			if (productName.trim() === '') 
+				setProductNameError('product name is required');
+			if (productPrice.toString().trim() === '') 
+				setProductPriceError('product price is required');
 		}
 	}
 
@@ -31,71 +124,68 @@ const ProductModal = props => {
 		title={props.title}
 		dismiss={props.dismiss}
 	>
-		<InputField
-			label="Product Name"
-			value={productName}
-			onChange={e => {
-				setProductName(e.target.value);
-				if (e.target.value.trim() !== '') setProductNameError(null);
-			}}
-			onBlur={e => {
-				if (e.target.value.trim() == '') 
-					setProductNameError('Product name is required')
-			}}
-			inputClassName="text-capitalize"
-			error={productNameError}
-		/>
-
-		<Spacer spaceY={16}/>
-
-		<InputField
-			label="Price"
-			type="number"
-			min="1.00"
-			step="any"
-			value={productPrice}
-			onChange={e => {
-				setProductPrice(e.target.value);
-				if (e.target.value.toString().trim() !== '') 
-					setProductPriceError(null);
-			}}
-			onBlur={e => {
-				if (e.target.value.toString().trim() == '') 
-					setProductPriceError('Product price is required')
-			}}
-			error={productPriceError}
-		/>
-
-		<Spacer spaceY={44}/>
-
-		<div className="text-right">
-			<ButtonFilled
-				orange
-				onClick={() => {
-					if (
-						productName.trim() !== '' && 
-						productPrice.toString().trim() !== ''
-					) {
-						props.action.commit({
-							name: productName,
-							price: productPrice
-						})
-						setProductNameError(null);
-						setProductPriceError(null);
-					}
-					else {
-						if (productName.trim() === '') 
-							setProductNameError('product name is required');
-						if (productPrice.toString().trim() === '') 
-							setProductPriceError('product price is required');
-					}
+		<form onSubmit={handleSubmit}>
+			<InputField
+				autoFocus
+				label="Product Name"
+				value={productName}
+				onChange={e => {
+					setProductName(e.target.value);
+					if (e.target.value.trim() !== '') setProductNameError(null);
 				}}
-			>
-				{props.action.label}
-			</ButtonFilled>
-		</div>
+				onBlur={e => {
+					if (e.target.value.trim() == '') 
+						setProductNameError('Product name is required')
+				}}
+				inputClassName="text-capitalize"
+				error={productNameError}
+			/>
+
+			<Spacer spaceY={16}/>
+
+			<InputField
+				label="Price"
+				type="number"
+				min="1.00"
+				step="any"
+				value={productPrice}
+				onChange={e => {
+					setProductPrice(e.target.value);
+					if (e.target.value.toString().trim() !== '') 
+						setProductPriceError(null);
+				}}
+				onBlur={e => {
+					if (e.target.value.toString().trim() == '') 
+						setProductPriceError('Product price is required')
+				}}
+				error={productPriceError}
+			/>
+
+			<Spacer spaceY={44}/>
+
+			<div className="text-right">
+				<ButtonFilled
+					orange
+					onClick={handleSubmit}
+					type="submit"
+				>
+					{props.mainActionLabel}
+				</ButtonFilled>
+			</div>
+		</form>
 	</BaseModal>
 }
 
 
-export default ProductModal;
+const mapStateToProps = state => ({
+	PRODUCT_LIST: state.PRODUCT_LIST,
+	MAX_PRICE_ID: state.MAX_PRICE_ID,
+});
+export default connect(
+	mapStateToProps,
+	{
+		UPDATE_PRODUCTS,
+		SET_MAX_PRICE_ID,
+		CREATE_FEEDBACK
+	}
+)(ProductModal);

@@ -1,8 +1,16 @@
 import App from 'next/app'
-import { Fragment } from 'react';
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
-// import Feedback from "../src/views/components/globals/Feedback";
+import reducers from '../src/services/reducers/'
+import Feedback from "../src/views/globals/Feedback";
 
+
+export const store = createStore(
+	reducers, 
+	composeWithDevTools()
+);
 
 
 class mPharmaProductManagerApp extends App {
@@ -16,18 +24,17 @@ class mPharmaProductManagerApp extends App {
       const { Component, pageProps, router } = this.props;
 
       return (
-         <Fragment>
-				{/* <Feedback/> */}
+         <Provider store={store}>
+				<Feedback/>
 				<Component
 					{...pageProps}
 					pathname={router.pathname}
 					query={router.query}
 				/>
-			</Fragment>
+          </Provider>
       )
    }
 }
-
 
 
 export default mPharmaProductManagerApp;

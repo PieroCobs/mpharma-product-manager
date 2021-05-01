@@ -2,6 +2,7 @@ import styled from "styled-components";
 import COLORS from "../../utils/colors";
 import { GhostButton } from "../globals/Buttons";
 import moment from "moment";
+import { FormatAsCurrency } from "../../utils/manip";
 
 
 const Product = props => {
@@ -13,8 +14,10 @@ const Product = props => {
 				<h6 className="product-name">{props.name}</h6>
 
 				<span className="current-price">
-					{/* show current price as last item in the prices props */}
-					ghs {props.prices[props.prices.length - 1].price}
+					{/* show current price as first item in the prices props */}
+					ghs {
+						FormatAsCurrency(props.prices[0].price)
+					}
 				</span>
 			</div>
 
@@ -62,14 +65,18 @@ const Product = props => {
 					</thead>
 					<tbody>
 						{
-							props.prices.reverse().map(price => (
+							props.prices.map(price => (
 								<tr key={price.id}>
 									<td>
 										{
-											moment(price.date).format("D-MM-YY, HH:mm")
+											moment(price.date).format("D MMM YYYY, HH:mm:ss")
 										}
 									</td>
-									<td>{price.price}</td>
+									<td>
+										{
+											FormatAsCurrency(price.price)
+										}
+									</td>
 								</tr>
 							))
 						}
@@ -88,7 +95,7 @@ export default Product;
 
 const Style = styled.div`
 	padding: 16px 12px;
-	transition: all 300ms;
+	transition: all 500ms;
 	background: ${props => props.isExpanded 
 		? COLORS.white 
 		: COLORS.white};

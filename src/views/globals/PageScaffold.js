@@ -7,6 +7,7 @@
 import styled from "styled-components";
 import COLORS from "../../utils/colors";
 import { PAGE_HEADER_HEIGHT } from "../../utils/constants";
+import BarLoaderWrapper from "./BarLoaderWrapper";
 
 
 const PageScaffold = props => {
@@ -17,6 +18,10 @@ const PageScaffold = props => {
 				alt="mPharma"
 				width="120"
 			/>
+
+			{
+				props.isLoading ? <BarLoaderWrapper/> : ''
+			}
 		</header>
 
 		{props.children}
@@ -52,7 +57,11 @@ const Style = styled.div`
 	header {
 		height: ${PAGE_HEADER_HEIGHT}px;
 		background: ${COLORS.white};
-		box-shadow: 0px 0px 4px ${COLORS.shadow};
+		box-shadow: ${props => props.isLoading 
+			? 'none'
+			: '0px 2px 4px ' + COLORS.shadow
+		};
+		position: relative;
 	}
 
 	main {
@@ -85,4 +94,13 @@ const Style = styled.div`
 			filter: invert(100%);
 		}
 	}
+`;
+
+
+export const PlaceholderFrame = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
 `;

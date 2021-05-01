@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { Fragment, useState } from "react";
+import { connect } from "react-redux";
 import Spacer from "../globals/Spacer";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import ProductModal from "../modals/ProductModal";
 import Product from "./Product";
+import { UPDATE_PRODUCTS } from "../../services/actions/products";
+import { CREATE_FEEDBACK } from "../../services/actions/ui"
 
 
-const ProductList = () => {
+const ProductList = props => {
 	const [expanded, setExpanded] = useState(null);
 	const [actionTracker, setActionTracker] = useState({
 		isTriggered: false,
@@ -19,23 +22,30 @@ const ProductList = () => {
 	});
 
 
-	const updateProductList = (index, updatedProduct) => {
-		PRODUCTS[index] = updatedProduct;
-	}
-
-
 	return <div style={{
 		maxWidth: 575,
 		margin: '0 auto',
 	}}>
-		<h5>Product List</h5>
-		<Spacer spaceY={24}/>
+		{
+			props.PRODUCT_LIST.filter(
+				product => !product.hasOwnProperty('deleted')
+			).length > 0
+			?
+			<Fragment>
+				<h5>Product List</h5>
+				<Spacer spaceY={24}/>
+			</Fragment>
+			:
+			''
+		}
 
 		{
-			PRODUCTS.filter(product => !product.hasOwnProperty('deleted'))
-			.length > 0 ?
-				PRODUCTS.filter(product => !product.hasOwnProperty('deleted'))
-				.map(product => (
+			props.PRODUCT_LIST.filter(
+				product => !product.hasOwnProperty('deleted')
+			).length > 0 ?
+				props.PRODUCT_LIST.filter(
+					product => !product.hasOwnProperty('deleted')
+				).map(product => (
 					<Product
 						key={product.id}
 						name={product.name}
@@ -55,7 +65,7 @@ const ProductList = () => {
 				))
 				:
 				<div className="empty-bucket">
-					Not product to display. <br/>
+					No product to display. <br/>
 					Click on the + button to add a new product
 				</div>
 		}
@@ -69,35 +79,7 @@ const ProductList = () => {
 						mode="edit"
 						product={actionTracker.product}
 						dismiss={dismissModal}
-						action={{
-							label: 'save changes',
-							commit: changes => {
-								const productInQuestion = actionTracker.product;
-								const indexOfProductInQuestion = PRODUCTS.indexOf(productInQuestion);
-
-								const editedProduct = {
-									id: productInQuestion.id,
-									name: changes.name,
-									prices: [...productInQuestion.prices]
-								}
-
-								if (changes.price != productInQuestion
-									.prices[productInQuestion.prices.length - 1].price) {
-										editedProduct.prices.push({
-											id: productInQuestion.prices.length + 1,
-											price: changes.price,
-											date: Date.now()
-										})
-									}
-
-								updateProductList(
-									indexOfProductInQuestion,
-									editedProduct
-								)
-
-								dismissModal();
-							}
-						}}
+						mainActionLabel="save changes"
 					/>
 					:
 						actionTracker.actionType.toLowerCase() === 'delete' ?
@@ -110,12 +92,16 @@ const ProductList = () => {
 								commit: () => {
 									const productInQuestion = actionTracker.product;
 									productInQuestion.deleted = true;
-									const indexOfProductInQuestion = PRODUCTS.indexOf(productInQuestion);
+									const indexOfProductInQuestion = props.PRODUCT_LIST.indexOf(productInQuestion);
 
-									updateProductList(
-										indexOfProductInQuestion, 
-										productInQuestion
-									)
+									const products = props.PRODUCT_LIST;
+									products[indexOfProductInQuestion] = productInQuestion;
+									props.UPDATE_PRODUCTS(products);
+
+									props.CREATE_FEEDBACK({
+										type: 'success',
+										message: `${productInQuestion.name} deleted.`
+									})
 									
 									dismissModal();
 								}
@@ -133,136 +119,11 @@ const ProductList = () => {
 }
 
 
-export default ProductList;
-
-
-const PRODUCTS = [
+const mapStateToProps = state => ({PRODUCT_LIST: state.PRODUCT_LIST})
+export default connect(
+	mapStateToProps,
 	{
-		id: 1,
-		name: 'Ibuprofen 5mg',
-		prices: [
-			{
-				id: 1,
-				price: 10.99,
-				date: "2020 04 02"
-			},
-			{
-				id: 2,
-				price: 12.99,
-				date: "2020 12 30"
-			},
-			{
-				id: 3,
-				price: 14.99,
-				date: "2021 02 12"
-			}
-		]
-	},
-	{
-		id: 2,
-		name: 'Chloramphenicol',
-		prices: [
-			{
-				id: 4,
-				price: 12.99,
-				date: "2019 08 21"
-			},
-			{
-				id: 5,
-				price: 18.99,
-				date: "2020 08 07"
-			}
-		]
-	},
-	{
-		id: 3,
-		name: 'Amoxclav',
-		prices: [
-			{
-				id: 6,
-				price: 24.99,
-				date: "2019 04 21"
-			}
-		]
-	},
-	{
-		id: 4,
-		name: 'Diclonova',
-		prices: [
-			{
-				id: 7,
-				price: 36.99,
-				date: "2019 08 21"
-			},
-			{
-				id: 8,
-				price: 40.99,
-				date: "2020 08 07"
-			}
-		]
-	},
-	{
-		id: 5,
-		name: 'zylonta',
-		prices: [
-			{
-				id: 9,
-				price: 12.99,
-				date: "2019 08 21"
-			}
-		]
-	},
-	{
-		id: 6,
-		name: 'jemperli',
-		prices: [
-			{
-				id: 10,
-				price: 12.99,
-				date: "2019 08 21"
-			},
-			{
-				id: 11,
-				price: 18.99,
-				date: "2020 08 07"
-			}
-		]
-	},
-	{
-		id: 7,
-		name: 'zegalogue',
-		prices: [
-			{
-				id: 12,
-				price: 12.99,
-				date: "2019 08 21"
-			},
-			{
-				id: 13,
-				price: 18.99,
-				date: "2020 08 07"
-			},
-			{
-				id: 14,
-				price: 17.99,
-				date: "2019 07 12"
-			}
-		]
-	},
-	{
-		id: 8,
-		name: 'Azstarys',
-		prices: [
-			{
-				id: 15,
-				price: 12.99,
-				date: "2019 08 21"
-			},
-			{
-				id: 16,
-				price: 18.99,
-				date: "2020 08 07"
-			}
-		]
+		UPDATE_PRODUCTS,
+		CREATE_FEEDBACK
 	}
-]
+)(ProductList);
