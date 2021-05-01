@@ -26,6 +26,7 @@ const InputField = ({
 	inputClassName,
 	id,
 	tabIndex,
+	autoFocus
 }) => {
 	return (
 		<Style
@@ -57,6 +58,7 @@ const InputField = ({
 				maxLength={maxLength}
 				id={id}
 				tabIndex={tabIndex}
+				autoFocus={autoFocus}
 			/>
 			{label ? <label htmlFor={name || id}>{label}</label> : ""}
 			<span className='error'>{error}</span>
