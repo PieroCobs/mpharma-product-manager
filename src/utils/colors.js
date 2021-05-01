@@ -2,7 +2,6 @@ export default {
 	black: "#000000",
 	blackDefault: "#2F2F2F",
 	blackAccent: "#7F7F7F",
-	blackAccentTwo: "#9f9f9f",
 	blackHalf: 'rgba(0,0,0,.5)',
 	blackQuarter: 'rgba(0,0,0,.25)',
 	blackTot: 'rgba(0,0,0,.1)',

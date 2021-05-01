@@ -1,7 +1,6 @@
 {/*
 	This serves as the base layout structure for pages.
-	It comes with a page header and a main element
-	where page specific content is displayed.
+	It comes with a header element
 */}
 
 
@@ -20,10 +19,7 @@ const PageScaffold = props => {
 			/>
 		</header>
 
-		<main>
-			{/* displaying page specific content */}
-			{ props.children }
-		</main>
+		{props.children}
 	</Style>
 }
 
@@ -35,25 +31,58 @@ export default PageScaffold;
 const Style = styled.div`
 	height: 100vh;
 	width: 100vw;
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
 	background: ${COLORS.white};
+	position: relative;
 
-	header, main {
+	header, main, footer {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		width: 100%;
 	}
 
+	header, footer {
+		flex: 0 0 auto;
+		z-index: 20;
+	}
+
 	header {
 		height: ${PAGE_HEADER_HEIGHT}px;
 		background: ${COLORS.white};
-		box-shadow: 0px 0px 2px ${COLORS.shadow};
+		box-shadow: 0px 0px 4px ${COLORS.shadow};
 	}
 
 	main {
-		height: calc(100vh - ${PAGE_HEADER_HEIGHT}px);
+		flex-grow: 1;
 		overflow-x: hidden;
 		overflow-y: auto;
+		align-items: flex-start;
+		padding: 28px 0 100px;
+
+		@media (min-width: 64rem) {
+			padding-top: 40px;
+			padding-bottom: 120px;
+		}
+	}
+
+	footer {
+		background: rgb(255,255,255);
+		background: linear-gradient(to bottom, rgba(255,255,255,.3) 0%, rgba(238,238,238,.5) 50%, rgba(238,238,238,8) 100%);
+		padding: 24px 0;
+		position: fixed;
+		bottom: 0;
+
+		@media (min-width: 64rem) {
+			padding-top: 40px;
+			padding-bottom: 40px;
+		}
+
+		img {
+			margin-right: 8px;
+			filter: invert(100%);
+		}
 	}
 `;
