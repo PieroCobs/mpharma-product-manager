@@ -41,7 +41,7 @@ The project was built with `ReactJS` using the `NextJS` framework, `Redux` for s
 **Create a static build**
 
 To create a static build to be uploaded to a shared hosting server: 
-1. Run `npm export`, which runs `next build` and `next export`.
+1. Run `npm run export`, which runs `next build` and `next export`.
 2. Find the output of the previous command in `/out/`. This static build can be uploaded to the server. 
 
 
