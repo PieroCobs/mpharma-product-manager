@@ -4,15 +4,14 @@
   "description": "React app that displays list of pharmaceutical products and their historical prices",
   "main": "index.js",
   "scripts": {
+    "build": "next build",
     "export": "next build && next export",
     "dev": "node server.js",
-    "build": "next build",
     "start": "NODE_ENV=production node server.js"
   },
   "author": "codycobs@outlook.com",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1",
     "moment": "^2.29.1",
     "next": "^10.2.0",
     "react": "^17.0.2",

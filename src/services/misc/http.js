@@ -1,56 +1,31 @@
 import { store } from "../../../pages/_app";
 import { CREATE_FEEDBACK } from "../actions/ui";
-import axios from "axios";
 
 
-const AXIOS_FETCH = axios.create({
-	timeout: 60000,
-	headers: {
-		"Content-Type": "application/x-www-form-urlencoded",
-		"Accept": "application/json, text/plain, */*",
-		"Access-Control-Allow-Origin": "*",
-	}
-})
+const BASE_URL = "http://www.mocky.io/v2/";
 
 
-export const HTTP_GET = ({
+export const HTTP_GET = async ({
 	url,
 	successCallback, 
-	errorCallback, 
-	finalCallback
+	errorCallback,
 }) => {
-	AXIOS_FETCH
-	.get(url)
-	.then(res => successCallback(res))
-	.catch(err => CATCH_BLOCK(err, errorCallback))
-	.finally(() => {
-		if (finalCallback) finalCallback()
-	})
+	fetch(BASE_URL + url)
+		.then(response => {
+			if (response.ok) return response.json();
+			throw Error(response.statusText);
+		})
+		.then(result => successCallback(result.products))
+		.catch(error => {
+			CATCH_BLOCK();
+			errorCallback(error.toString())
+		})
 };
 
 
 // error handling
-const CATCH_BLOCK = (err, callback) => {
-	if (navigator.onLine) {
-		if (err.response) {
-			if (err.response.status < 304) {
-				store.dispatch(
-					CREATE_FEEDBACK({
-						type: "error",
-						message:
-							"Bad internet connection. Please check your connection and try again.",
-						selfDestruct: true,
-					})
-				);
-			}
-				
-			callback(err.response.data.message);
-		} 
-
-		else callback(err.message);
-	} 
-
-	else {
+const CATCH_BLOCK = () => {
+	if (!navigator.onLine) {
 		store.dispatch(
 			CREATE_FEEDBACK({
 				type: "error",
@@ -59,6 +34,5 @@ const CATCH_BLOCK = (err, callback) => {
 				selfDestruct: true,
 			})
 		);
-		callback();
 	}
 };

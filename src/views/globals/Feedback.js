@@ -68,12 +68,16 @@ const Style = styled.section`
 	border-radius: ${CONTROLS_BORDER_RADIUS / 2}px;
 	overflow: hidden;
 	bottom: 20px;
-	left: 20px;
+	left: 5%;
 	background: ${COLORS.white};
 	box-shadow: 0 2px 4px rgba(0,0,0,.05), 0 12px 36px ${COLORS.shadow};
 	animation-duration: .3s;
 	${props => props.shown ? slideLeftFadeInCss : slideRightFadeOutCss};
 	z-index: ${props => props.shown ? 99999 : -200} !important;
+
+	@media (min-width: 575px) {
+		left: 20px;
+	}
 	
 	img, button {flex-grow: 0; flex-shrink: 0}
 	.content {margin: 0 8px 0 24px; flex-grow: 1;}

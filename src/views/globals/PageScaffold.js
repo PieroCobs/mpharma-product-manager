@@ -59,7 +59,7 @@ const Style = styled.div`
 		background: ${COLORS.white};
 		box-shadow: ${props => props.isLoading 
 			? 'none'
-			: '0px 2px 4px ' + COLORS.shadow
+			: '0px 1px 3px ' + COLORS.shadow
 		};
 		position: relative;
 	}

@@ -21,44 +21,57 @@ const Index = props => {
 
 
 	useEffect(() => {
-		HTTP_GET(
-			{
-				url: 'http://www.mocky.io/v2/5c3e15e63500006e003e9795',
-				successCallback: res => {
-					const { products } = res.data;
-					let priceList = [];
+		// fetch inital product list from servier if list is not
+		// already cached in local storage
+		if (props.PRODUCT_LIST.length < 1) {
+			HTTP_GET(
+				{
+					url: '5c3e15e63500006e003e9795',
+					successCallback: products => {
+						let priceList = [];
+	
+						/* 
+						sorting price dates in descending order
+						this makes getting the most recent price 
+						more predictable
+						*/
+						products.forEach(product => {
+							if (product.prices) {
+								priceList = [...priceList, ...product.prices];
+	
+								product.prices.sort((a, b) => {
+									return Date.parse(b.date) - Date.parse(a.date);
+								})
+							}
+						});
+	
+						// getting the hightest id of the prices on all products
+						priceList.sort((a, b) => {
+							return b.id - a.id;
+						});
+	
+						props.SET_MAX_PRICE_ID(priceList[0]['id'])
+						props.LOAD_PRODUCTS(products);
 
-					// sorting price dates in descending order
-					// this makes getting the most recent price 
-					// more predictable
-					products.forEach(product => {
-						if (product.prices) {
-							priceList = [...priceList, ...product.prices];
+						renderPageContent();
+					},
+					errorCallback: (errMsg) => {
+						setPlaceholderText(errMsg);
+						setIsLoading(false);
+					}
+				}
+			)
+		}
 
-							product.prices.sort((a, b) => {
-								return Date.parse(b.date) - Date.parse(a.date);
-							})
-						}
-					});
+		// if there are products in local storage, go ahead and load them
+		else renderPageContent();
+	}, []);
 
-					// getting the hightest price id
-					priceList.sort((a, b) => {
-						return b.id - a.id;
-					});
 
-					props.SET_MAX_PRICE_ID(priceList[0]['id'])
-					props.LOAD_PRODUCTS(products);
-					setPlaceholderText(null);
-				},
-				errorCallback: () => {
-					setPlaceholderText(
-						'Could not fetch product list. Please try again later.'
-					);
-				},
-				finalCallback: () => setIsLoading(false)
-			}
-		)
-	}, [])
+	const renderPageContent = () => {
+		setPlaceholderText(null);
+		setIsLoading(false)
+	}
 
 
 	return <div>
@@ -66,45 +79,25 @@ const Index = props => {
 		<GlobalStyle />
 		<PageScaffold isLoading={isLoading}>
 			{
+				showAddNewPane ?
+				<ProductModal
+					show={showAddNewPane}
+					title="add new product"
+					dismiss={() => setShowAddNewPane(false)}
+					mainActionLabel="add product"
+				/>
+				:
+				''
+			}
+
+			{
 				!isLoading ?
-					!placeholderText ?
-						<Fragment>
+					!placeholderText || props.PRODUCT_LIST.length > 0 ?
 							<main>
 								<div className="container">
-									{
-										showAddNewPane ?
-										<ProductModal
-											show={showAddNewPane}
-											title="add new product"
-											dismiss={() => setShowAddNewPane(false)}
-											mainActionLabel="add product"
-										/>
-										:
-										''
-									}
 									<ProductList/>
 								</div>
 							</main>
-
-							{
-								!showAddNewPane ?
-									<footer>
-										<ButtonFilled
-											orange
-											onClick={() => setShowAddNewPane(true)}
-										>
-											<img 
-												src="/img/plus.svg" 
-												alt="+"
-												width="16"
-											/>
-											Add New Product
-										</ButtonFilled>
-									</footer>
-									:
-									''
-							}
-						</Fragment>
 						:
 						<PlaceholderFrame>
 							{placeholderText}
@@ -114,12 +107,31 @@ const Index = props => {
 						{placeholderText}
 					</PlaceholderFrame>
 			}
+
+			{
+				!showAddNewPane ?
+					<footer>
+						<ButtonFilled
+							orange
+							onClick={() => setShowAddNewPane(true)}
+						>
+							<img 
+								src="/img/plus.svg" 
+								alt="+"
+								width="16"
+							/>
+							Add New Product
+						</ButtonFilled>
+					</footer>
+					:
+					''
+			}
 		</PageScaffold>
 	</div>;
 };
 
 
-const mapStateToProps = () => ({});
+const mapStateToProps = state => ({PRODUCT_LIST: state.PRODUCT_LIST});
 export default connect(
 	mapStateToProps,
 	{ 

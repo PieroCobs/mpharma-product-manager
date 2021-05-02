@@ -112,6 +112,15 @@ const Style = styled.div`
 		justify-content: space-between;
 	}
 
+	.details {
+		max-width: 60%;
+	}
+
+	.controls {
+		white-space: nowrap;
+		background: ${COLORS.white};
+	}
+
 	.product-name {
 		font-size: 16px;
 		text-transform: capitalize;
