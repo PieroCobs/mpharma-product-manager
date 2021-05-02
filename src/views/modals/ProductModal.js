@@ -5,7 +5,8 @@ import InputField from "../globals/InputField";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { 
-	UPDATE_PRODUCTS, 
+	UPDATE_PRODUCT,
+	ADD_PRODUCT,
 	SET_MAX_PRICE_ID 
 } from "../../services/actions/products";
 import { 
@@ -43,7 +44,7 @@ const ProductModal = props => {
 		) {
 			// save new product to state
 			if (props.mode !== 'edit') {
-				props.UPDATE_PRODUCTS([
+				props.ADD_PRODUCT(
 					{
 						id: props.PRODUCT_LIST.length + 1,
 						name: productName,
@@ -54,9 +55,8 @@ const ProductModal = props => {
 								date: Date.now()
 							}
 						]
-					},
-					...props.PRODUCT_LIST
-				]);
+					}
+				);
 
 				props.SET_MAX_PRICE_ID(props.MAX_PRICE_ID + 1);
 
@@ -71,7 +71,6 @@ const ProductModal = props => {
 			else {
 				const productInQuestion = props.product;
 				const productInQuestionLastPrice = productInQuestion.prices[0].price
-				const indexOfProductInQuestion = props.PRODUCT_LIST.indexOf(productInQuestion);
 
 				const editedProduct = {
 					...productInQuestion,
@@ -90,12 +89,13 @@ const ProductModal = props => {
 				}
 
 				// updating store
-				const products = props.PRODUCT_LIST;
-				products[indexOfProductInQuestion] = editedProduct;
-				props.UPDATE_PRODUCTS(products);
+				props.UPDATE_PRODUCT({
+					oldProduct: productInQuestion,
+					newProduct: editedProduct
+				});
 
 				if (
-					productName !== productInQuestion.name ||
+					productName.trim() !== productInQuestion.name ||
 					productPrice != productInQuestionLastPrice
 				) {
 					props.CREATE_FEEDBACK({
@@ -129,6 +129,7 @@ const ProductModal = props => {
 				autoFocus
 				label="Product Name"
 				value={productName}
+				maxLength={80}
 				onChange={e => {
 					setProductName(e.target.value);
 					if (e.target.value.trim() !== '') setProductNameError(null);
@@ -184,7 +185,8 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		UPDATE_PRODUCTS,
+		UPDATE_PRODUCT,
+		ADD_PRODUCT,
 		SET_MAX_PRICE_ID,
 		CREATE_FEEDBACK
 	}

@@ -4,11 +4,12 @@ import Spacer from "../globals/Spacer";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import ProductModal from "../modals/ProductModal";
 import Product from "./Product";
-import { UPDATE_PRODUCTS } from "../../services/actions/products";
+import { DELETE_PRODUCT } from "../../services/actions/products";
 import { CREATE_FEEDBACK } from "../../services/actions/ui"
 
 
 const ProductList = props => {
+	// expanded holds the id of the currently expanded product component
 	const [expanded, setExpanded] = useState(null);
 	const [actionTracker, setActionTracker] = useState({
 		isTriggered: false,
@@ -43,19 +44,36 @@ const ProductList = props => {
 			props.PRODUCT_LIST.filter(
 				product => !product.hasOwnProperty('deleted')
 			).length > 0 ?
+
+				// since deleted items are still in state
+				// filter out all undeleted items and display them
 				props.PRODUCT_LIST.filter(
 					product => !product.hasOwnProperty('deleted')
-				).map(product => (
+				)
+
+				// loop over undeleted items and display them
+				.map(product => (
 					<Product
 						key={product.id}
 						name={product.name}
 						prices={product.prices}
 						onExpanded={() => {
+							/*
+							first on toggle of price history button on product component
+							if expanded equals product id, price history for component
+							is collapsed, otherwise, product id is passed to expanded
+							*/
 							expanded && expanded === product.id 
 							? setExpanded(null)
 							: setExpanded(product.id)
 						}}
 						isExpanded={expanded === product.id}
+
+						/* 
+						onActionTriggered fires on click of either the edit or delete buttons
+						it receives the actionType — [delete || edit], 
+						and the product on which the event was fired, for reference
+						*/
 						onActionTriggered={actionType => setActionTracker({
 							isTriggered: true,
 							actionType: actionType,
@@ -72,6 +90,7 @@ const ProductList = props => {
 
 		{
 			actionTracker.isTriggered ?
+				// show edit modal if actionTracker.actionType is 'edit'
 				actionTracker.actionType.toLowerCase() === 'edit' ?
 					<ProductModal
 						show={actionTracker.isTriggered}
@@ -82,6 +101,7 @@ const ProductList = props => {
 						mainActionLabel="save changes"
 					/>
 					:
+						// show delete modal if actionTracker.actionType is 'delete'
 						actionTracker.actionType.toLowerCase() === 'delete' ?
 						<ConfirmationModal
 							show={actionTracker.isTriggered}
@@ -91,16 +111,13 @@ const ProductList = props => {
 								label: 'delete product',
 								commit: () => {
 									const productInQuestion = actionTracker.product;
-									productInQuestion.deleted = true;
-									const indexOfProductInQuestion = props.PRODUCT_LIST.indexOf(productInQuestion);
 
-									const products = props.PRODUCT_LIST;
-									products[indexOfProductInQuestion] = productInQuestion;
-									props.UPDATE_PRODUCTS(products);
+									props.DELETE_PRODUCT(productInQuestion);
 
 									props.CREATE_FEEDBACK({
 										type: 'success',
-										message: `${productInQuestion.name} deleted.`
+										message: `${productInQuestion.name} deleted.`,
+										selfDestruct: true
 									})
 									
 									dismissModal();
@@ -123,7 +140,7 @@ const mapStateToProps = state => ({PRODUCT_LIST: state.PRODUCT_LIST})
 export default connect(
 	mapStateToProps,
 	{
-		UPDATE_PRODUCTS,
+		DELETE_PRODUCT,
 		CREATE_FEEDBACK
 	}
 )(ProductList);

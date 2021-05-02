@@ -2,7 +2,6 @@ node_modules
 .next
 out
 build
-next.config.js
 .env
 .vscode
 .DS_Store
